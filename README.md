@@ -15,9 +15,8 @@ Welcome to Go-NoteApp, a straightforward and efficient note-taking web applicati
 To get started with Go-NoteApp, follow these steps:
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/go-noteapp.git
   ```
+   git clone https://github.com/your-username/go-noteapp.git
 ```
 2. Navigate to project repository:
 ```
@@ -25,7 +24,7 @@ To get started with Go-NoteApp, follow these steps:
 ```
 4. Run the application:
 ```
-go run main.go
+   go run main.go
 ```
 5. Open your web browser and go to http://localhost:3000 to access the application.
 
@@ -36,7 +35,7 @@ go run main.go
 1. Click on the "Create a note!" button on the homepage.
 2. Enter a title and the content of your note in the provided form.
 3. Click on the "Create Note" button to save your note.
-4. 
+
 ## Viewing a Note
 1. Click on the title of the note you want to view from the homepage.
 2. You will be directed to a page where you can see the title and content of the selected note.
