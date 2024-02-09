@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 )
 
@@ -153,7 +155,11 @@ func main() {
 	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/save/", saveHandler)
 	http.HandleFunc("/create", createHandler)
+	serverURL := "http://localhost:3000"
+	fmt.Printf("Server is started at: %s\n", serverURL)
 
+	// Open the server URL in a browser
+	openBrowser(serverURL)
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
@@ -173,4 +179,23 @@ func checkDir(directory string) {
 	} else {
 		fmt.Printf("Directory %s exists\n", directory)
 	}
+}
+
+func openBrowser(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start", url}
+	case "darwin":
+		cmd = "open"
+		args = []string{url}
+	default:
+		cmd = "xdg-open"
+		args = []string{url}
+	}
+
+	return exec.Command(cmd, args...).Start()
 }
