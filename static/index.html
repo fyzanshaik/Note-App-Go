@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Notes List</title>
+	</head>
+	<body>
+		<h1>Notes List</h1>
+		<button onclick="location.href='/create'">Create a note!</button>
+		<br />
+		<ul>
+			{{range .}}
+			<li>
+				<div>
+					<span>{{.}}</span>
+					<a href="/view/{{.}}">View</a>
+				</div>
+			</li>
+			{{end}}
+		</ul>
+	</body>
+</html>
