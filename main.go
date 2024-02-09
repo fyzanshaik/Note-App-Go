@@ -155,10 +155,10 @@ func main() {
 	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/save/", saveHandler)
 	http.HandleFunc("/create", createHandler)
+	
 	serverURL := "http://localhost:3000"
 	fmt.Printf("Server is started at: %s\n", serverURL)
 
-	// Open the server URL in a browser
 	openBrowser(serverURL)
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
