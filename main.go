@@ -160,18 +160,20 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	type EntryInfo struct {
 		Title     string
+		Path      string
 		Timestamp string
 	}
 
 	var entries []EntryInfo
 	for _, file := range files {
 		if !file.IsDir() && strings.HasSuffix(file.Name(), ".md") {
-			title := strings.TrimSuffix(file.Name(), ".md")
-			title = strings.ReplaceAll(title, "_", " ")
+			realPathTitle := strings.TrimSuffix(file.Name(), ".md")
+			title := strings.ReplaceAll(realPathTitle, "_", " ")
 			timestamp := readTimestampFromFile(directory + "/" + file.Name())
 			fmt.Printf("File: %s, Timestamp: %s\n\n", file.Name(), timestamp)
 			entries = append(entries, EntryInfo{
 				Title:     title,
+				Path:      realPathTitle,
 				Timestamp: timestamp,
 			})
 		}

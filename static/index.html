@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My Journal</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>My Journal</h1>
-        <button class="create-btn" onclick="location.href='/create'">Create a new entry</button>
-        <ul>
-            {{range .}}
-            <li>
-                <div class="entry">
-                    <span class="title">{{.Title}}</span>
-                    <span class="timestamp">{{.Timestamp}}</span>
-                    <a class="view-btn" href="/view/{{.Title}}">View</a>
-                    <a class="delete-btn" href="/delete/{{.Title}}">Delete</a>
-                </div>
-            </li>
-            {{end}}
-        </ul>
-    </div>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<title>My Journal</title>
+		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
+		<link rel="stylesheet" href="/static/styles.css" />
+	</head>
+	<body>
+		<div class="container">
+			<h1>My Journal</h1>
+			<button class="create-btn" onclick="location.href='/create'">Create a new entry</button>
+			<ul>
+				{{range .}}
+				<li>
+					<div class="entry">
+						<span class="title">{{.Title}}</span>
+						<span class="timestamp">{{.Timestamp}}</span>
+						<a class="view-btn" href="/view/{{.Path}}">View</a>
+						<a class="delete-btn" href="/delete/{{.Path}}">Delete</a>
+					</div>
+				</li>
+				{{end}}
+			</ul>
+		</div>
+	</body>
 </html>
