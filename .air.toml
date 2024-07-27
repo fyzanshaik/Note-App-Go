@@ -1,0 +1,10 @@
+# .air.toml
+root = "."
+
+[build]
+cmd = "go build -o bin/main"
+bin = "bin/main"
+
+[watch]
+include = ["."]
+exclude = ["tmp", "bin"]

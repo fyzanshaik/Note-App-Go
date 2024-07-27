@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 )
@@ -23,11 +24,11 @@ type Page struct {
 
 var templates = template.Must(template.New("").Funcs(template.FuncMap{"string": func(b []byte) string { return string(b) }}).ParseFiles(
 	"./static/index.html", "./static/create.html", "./static/view.html", "./static/edit.html", "./static/delete.html"))
-var validPath = regexp.MustCompile("^/(edit|save|view|delete)/([a-zA-Z0-9]+)$")
+var validPath = regexp.MustCompile(`^/(edit|save|view|delete)/([a-zA-Z0-9_/-]+)$`)
 
 func (p *Page) save() error {
 	var directory string = "./Files/"
-	title := strings.ReplaceAll(p.Title, " ", "")
+	title := strings.ReplaceAll(p.Title, " ", "_")
 	filename := title + ".md"
 	filePath := directory + filename
 
@@ -38,6 +39,7 @@ func (p *Page) save() error {
 
 func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 	m := validPath.FindStringSubmatch(r.URL.Path)
+	fmt.Println("Path: ", r.URL.Path)
 	if m == nil {
 		http.NotFound(w, r)
 		return "", errors.New("invalid Page Title")
@@ -59,11 +61,41 @@ func loadPage(title string) (*Page, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Page{Title: title, Body: body}, nil
+	title = strings.ReplaceAll(title, "_", " ")
+	body, timeStamp := bodyHandler(body)
+	return &Page{Title: title, Body: body, Timestamp: string(timeStamp)}, nil
+}
+
+func bodyHandler(dataStream []uint8) ([]uint8, []uint8) {
+	dataStr := string(dataStream)
+
+	firstAsteriskPos := strings.IndexByte(dataStr, '*')
+	lastAsteriskPos := strings.LastIndexByte(dataStr, '*')
+
+	if firstAsteriskPos == -1 || lastAsteriskPos == -1 || lastAsteriskPos <= firstAsteriskPos {
+		return []uint8{}, []uint8{}
+	}
+
+	newlinePos := strings.IndexByte(dataStr, '\n')
+	if newlinePos == -1 || firstAsteriskPos <= newlinePos {
+		return []uint8{}, []uint8{}
+	}
+
+	startPos := newlinePos + 1
+	bodyStr := strings.TrimSpace(dataStr[startPos:firstAsteriskPos])
+
+	timestampStr := strings.TrimSpace(dataStr[firstAsteriskPos+1 : lastAsteriskPos])
+
+	bodySlice := []uint8(bodyStr)
+	timestampSlice := []uint8(timestampStr)
+
+	return bodySlice, timestampSlice
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title, err := getTitle(w, r)
+	// title = strings.ReplaceAll(title,"_"," ");
+	fmt.Println("Title: ", title)
 	if err != nil {
 		return
 	}
@@ -132,17 +164,36 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var entries []EntryInfo
-    for _, file := range files {
-        if !file.IsDir() && strings.HasSuffix(file.Name(), ".md") {
-            title := strings.TrimSuffix(file.Name(), ".md")
-            timestamp := readTimestampFromFile(directory + "/" + file.Name())
-            fmt.Printf("File: %s, Timestamp: %s\n", file.Name(), timestamp)
-            entries = append(entries, EntryInfo{
-                Title:     title,
-                Timestamp: timestamp,
-            })
-        }
-    }
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".md") {
+			title := strings.TrimSuffix(file.Name(), ".md")
+			title = strings.ReplaceAll(title, "_", " ")
+			timestamp := readTimestampFromFile(directory + "/" + file.Name())
+			fmt.Printf("File: %s, Timestamp: %s\n\n", file.Name(), timestamp)
+			entries = append(entries, EntryInfo{
+				Title:     title,
+				Timestamp: timestamp,
+			})
+		}
+	}
+
+	// Define the layout for parsing the timestamp
+	const layout = "Mon, 02 Jan 2006 15:04:05 MST"
+
+	// Parse timestamps and sort entries in descending order
+	sort.Slice(entries, func(i, j int) bool {
+		// Parse timestamps
+		timestampI, errI := time.Parse(layout, entries[i].Timestamp)
+		timestampJ, errJ := time.Parse(layout, entries[j].Timestamp)
+
+		// Handle parsing errors
+		if errI != nil || errJ != nil {
+			return false
+		}
+
+		// Sort by descending timestamp
+		return timestampI.After(timestampJ)
+	})
 
 	err = templates.ExecuteTemplate(w, "index.html", entries)
 	if err != nil {
@@ -152,40 +203,40 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readTimestampFromFile(filepath string) string {
-    file, err := os.Open(filepath)
-    if err != nil {
-        fmt.Printf("Error opening file %s: %v\n", filepath, err)
-        return ""
-    }
-    defer file.Close()
+	file, err := os.Open(filepath)
+	if err != nil {
+		fmt.Printf("Error opening file %s: %v\n", filepath, err)
+		return ""
+	}
+	defer file.Close()
 
-    scanner := bufio.NewScanner(file)
-    for scanner.Scan() {
-        line := scanner.Text()
-        if strings.HasPrefix(line, "*Created on:") {
-            timestampStr := strings.TrimPrefix(line, "*Created on:")
-            timestampStr = strings.TrimSpace(timestampStr)
-            timestampStr = strings.TrimSuffix(timestampStr, "*")
-            fmt.Printf("Raw timestamp string: %s\n", timestampStr)
-            
-            timestamp, err := time.Parse(time.RFC1123, timestampStr)
-            if err == nil {
-                formattedTime := timestamp.Format("2006-01-02 15:04:05")
-                fmt.Printf("Parsed and formatted timestamp: %s\n", formattedTime)
-                return formattedTime
-            } else {
-                fmt.Printf("Error parsing timestamp: %v\n", err)
-                return timestampStr // return as-is if parsing fails
-            }
-        }
-    }
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "*Created on:") {
+			timestampStr := strings.TrimPrefix(line, "*Created on:")
+			timestampStr = strings.TrimSpace(timestampStr)
+			timestampStr = strings.TrimSuffix(timestampStr, "*")
+			fmt.Printf("Raw timestamp string: %s\n", timestampStr)
 
-    if err := scanner.Err(); err != nil {
-        fmt.Printf("Error reading file %s: %v\n", filepath, err)
-    }
+			timestamp, err := time.Parse(time.RFC1123, timestampStr)
+			if err == nil {
+				formattedTime := timestamp.Format("2006-01-02 15:04:05")
+				fmt.Printf("Parsed and formatted timestamp: %s\n", formattedTime)
+				return formattedTime
+			} else {
+				fmt.Printf("Error parsing timestamp: %v\n", err)
+				return timestampStr // return as-is if parsing fails
+			}
+		}
+	}
 
-    fmt.Printf("No timestamp found in file %s\n", filepath)
-    return ""
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("Error reading file %s: %v\n", filepath, err)
+	}
+
+	fmt.Printf("No timestamp found in file %s\n", filepath)
+	return ""
 }
 
 func createHandler(w http.ResponseWriter, r *http.Request) {
@@ -228,7 +279,7 @@ func main() {
 	serverURL := "http://localhost:3000"
 	fmt.Printf("Server is started at: %s\n", serverURL)
 
-	openBrowser(serverURL)
+	// openBrowser(serverURL)
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
