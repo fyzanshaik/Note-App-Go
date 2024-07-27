@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{.Title}}</title>
-	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>{{.Title}}</h1>
-        <div class="content">{{.Body | string}}</div>
-        <p><a class="edit-btn" href="/edit/{{.Title}}">Edit</a></p>
-        <button class="back-btn" onclick="location.href='/'">Back to all entries</button>
-    </div>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<title>{{.Title}}</title>
+		<link rel="stylesheet" href="/static/styles.css" />
+		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
+	</head>
+	<body>
+		<div class="container">
+			<h1>{{.Title}}</h1>
+			<div class="content">{{.Body | string}}</div>
+			<p>
+				<a class="edit-btn" href="/edit/{{.Title}}">Edit</a>
+				<a class="home-btn" href="/">Home</a>
+			</p>
+		</div>
+	</body>
 </html>

@@ -4,21 +4,22 @@ body {
 	color: #ffffff;
 	margin: 0;
 	padding: 0;
-  }
-  
-  .container {
+}
+
+.container {
 	width: 90%;
 	max-width: 800px;
 	margin: 20px auto;
 	padding: 15px;
-  }
-  
-  h1 {
+}
+
+h1 {
 	text-align: center;
 	margin-bottom: 15px;
-  }
-  
-  button, input[type="submit"] {
+}
+
+button,
+input[type='submit'] {
 	background-color: #333333;
 	color: white;
 	border: none;
@@ -26,56 +27,140 @@ body {
 	font-size: 14px;
 	cursor: pointer;
 	transition: background-color 0.2s ease;
-  }
-  
-  button:hover, input[type="submit"]:hover {
+}
+
+button:hover,
+input[type='submit']:hover {
 	background-color: #444444;
-  }
-  
-  ul {
+}
+
+ul {
 	list-style-type: none;
 	padding: 0;
-  }
-  
-  .entry {
+}
+
+.entry {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	padding: 8px;
 	border-bottom: 1px solid #333333;
-  }
-  
-  a {
+}
+
+.entry .title {
+	flex-grow: 1;
+}
+
+.entry .timestamp {
+	font-size: 0.8em;
+	color: #888;
+	margin: 0 10px;
+}
+
+.entry a {
+	margin-left: 10px;
+}
+
+a {
 	color: #4a9eff;
 	text-decoration: none;
-  }
-  
-  a:hover {
+}
+
+a:hover {
 	text-decoration: underline;
-  }
-  
-  textarea, input[type="text"] {
+}
+
+textarea,
+input[type='text'] {
 	width: 100%;
-	background-color: #1e1e1e;
+	background-color: transparent;
 	color: white;
-	border: 1px solid #333333;
-	padding: 8px;
+	border: none;
+	border-bottom: 1px solid #333333;
+	padding: 8px 0;
 	margin-bottom: 10px;
-  }
-  
-  label {
+	outline: none;
+}
+
+input[type='text'] {
+	font-size: 24px;
+}
+
+textarea {
+	font-size: 16px;
+	resize: vertical;
+}
+
+input[type='text']::placeholder,
+textarea::placeholder {
+	color: #555555;
+}
+.timestamp {
+	font-size: 0.8em;
+	color: #888;
+	margin-left: 10px;
+}
+
+.entry {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px;
+	border-bottom: 1px solid #333333;
+}
+
+.entry span:first-child {
+	flex-grow: 1;
+}
+
+.entry .timestamp {
+	margin-right: auto;
+}
+label {
 	display: block;
 	margin-bottom: 5px;
-  }
-  
-  .create-btn, .save-btn, .edit-btn, .delete-btn, .back-btn, .view-btn {
+}
+
+.create-btn,
+.save-btn,
+.edit-btn,
+.delete-btn,
+.back-btn,
+.view-btn,
+.home-btn {
 	background-color: #333333;
 	color: white;
 	padding: 6px 12px;
 	text-decoration: none;
 	font-size: 14px;
-  }
-  
-  .create-btn:hover, .save-btn:hover, .edit-btn:hover, .delete-btn:hover, .back-btn:hover, .view-btn:hover {
+	margin-right: 10px;
+}
+
+.create-btn:hover,
+.save-btn:hover,
+.edit-btn:hover,
+.delete-btn:hover,
+.back-btn:hover,
+.view-btn:hover,
+.home-btn:hover {
 	background-color: #444444;
-  }
+}
+
+/* Blinking cursor effect */
+@keyframes blink {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+input[type='text']::after,
+textarea::after {
+	content: '|';
+	animation: blink 1s infinite;
+}

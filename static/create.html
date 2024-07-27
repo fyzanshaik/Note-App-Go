@@ -1,21 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Create New Entry</title>
-	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Create New Entry</h1>
-        <form action="/create" method="post">
-            <label for="title">Title:</label>
-            <input type="text" id="title" name="title" required>
-            <label for="body">Body:</label>
-            <textarea id="body" name="body" rows="5" cols="40" required></textarea>
-            <input class="create-btn" type="submit" value="Create">
-        </form>
-    </div>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Create New Entry</title>
+		<link rel="stylesheet" href="/static/styles.css" />
+		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
+		<style>
+			#datetime {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+				font-size: 14px;
+				color: #888;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="datetime"></div>
+		<div class="container">
+			<h1>Create New Entry</h1>
+			<form action="/create" method="post">
+				<input type="text" id="title" name="title" placeholder="Title" required />
+				<textarea id="body" name="body" rows="5" placeholder="Body" required></textarea>
+				<input class="create-btn" type="submit" value="Create" />
+			</form>
+		</div>
+
+		<script>
+			function updateDateTime() {
+				const now = new Date();
+				const options = {
+					weekday: 'long',
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+					hour: '2-digit',
+					minute: '2-digit',
+					second: '2-digit',
+				};
+				const formattedDateTime = now.toLocaleDateString('en-US', options);
+				document.getElementById('datetime').textContent = formattedDateTime;
+			}
+
+			updateDateTime();
+			setInterval(updateDateTime, 1000);
+		</script>
+	</body>
 </html>

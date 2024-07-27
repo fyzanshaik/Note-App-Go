@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"html/template"
@@ -125,18 +126,66 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var notes []string
-	for _, file := range files {
-		if !file.IsDir() && strings.HasSuffix(file.Name(), ".md") {
-			notes = append(notes, strings.TrimSuffix(file.Name(), ".md"))
-		}
+	type EntryInfo struct {
+		Title     string
+		Timestamp string
 	}
 
-	err = templates.ExecuteTemplate(w, "index.html", notes)
+	var entries []EntryInfo
+    for _, file := range files {
+        if !file.IsDir() && strings.HasSuffix(file.Name(), ".md") {
+            title := strings.TrimSuffix(file.Name(), ".md")
+            timestamp := readTimestampFromFile(directory + "/" + file.Name())
+            fmt.Printf("File: %s, Timestamp: %s\n", file.Name(), timestamp)
+            entries = append(entries, EntryInfo{
+                Title:     title,
+                Timestamp: timestamp,
+            })
+        }
+    }
+
+	err = templates.ExecuteTemplate(w, "index.html", entries)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func readTimestampFromFile(filepath string) string {
+    file, err := os.Open(filepath)
+    if err != nil {
+        fmt.Printf("Error opening file %s: %v\n", filepath, err)
+        return ""
+    }
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        line := scanner.Text()
+        if strings.HasPrefix(line, "*Created on:") {
+            timestampStr := strings.TrimPrefix(line, "*Created on:")
+            timestampStr = strings.TrimSpace(timestampStr)
+            timestampStr = strings.TrimSuffix(timestampStr, "*")
+            fmt.Printf("Raw timestamp string: %s\n", timestampStr)
+            
+            timestamp, err := time.Parse(time.RFC1123, timestampStr)
+            if err == nil {
+                formattedTime := timestamp.Format("2006-01-02 15:04:05")
+                fmt.Printf("Parsed and formatted timestamp: %s\n", formattedTime)
+                return formattedTime
+            } else {
+                fmt.Printf("Error parsing timestamp: %v\n", err)
+                return timestampStr // return as-is if parsing fails
+            }
+        }
+    }
+
+    if err := scanner.Err(); err != nil {
+        fmt.Printf("Error reading file %s: %v\n", filepath, err)
+    }
+
+    fmt.Printf("No timestamp found in file %s\n", filepath)
+    return ""
 }
 
 func createHandler(w http.ResponseWriter, r *http.Request) {

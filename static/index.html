@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>My Journal</title>
-	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
@@ -14,9 +14,10 @@
             {{range .}}
             <li>
                 <div class="entry">
-                    <span>{{.}}</span>
-                    <a class="view-btn" href="/view/{{.}}">View</a>
-                    <a class="delete-btn" href="/delete/{{.}}">Delete</a>
+                    <span class="title">{{.Title}}</span>
+                    <span class="timestamp">{{.Timestamp}}</span>
+                    <a class="view-btn" href="/view/{{.Title}}">View</a>
+                    <a class="delete-btn" href="/delete/{{.Title}}">Delete</a>
                 </div>
             </li>
             {{end}}
