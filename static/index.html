@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Notes List</title>
-	</head>
-	<body>
-		<h1>Notes List</h1>
-		<button onclick="location.href='/create'">Create a note!</button>
-		<br />
-		<ul>
-			{{range .}}
-			<li>
-				<div>
-					<span>{{.}}</span>
-					<a href="/view/{{.}}">View</a>
-				</div>
-			</li>
-			{{end}}
-		</ul>
-	</body>
+<head>
+    <meta charset="UTF-8">
+    <title>My Journal</title>
+	<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>My Journal</h1>
+        <button class="create-btn" onclick="location.href='/create'">Create a new entry</button>
+        <ul>
+            {{range .}}
+            <li>
+                <div class="entry">
+                    <span>{{.}}</span>
+                    <a class="view-btn" href="/view/{{.}}">View</a>
+                    <a class="delete-btn" href="/delete/{{.}}">Delete</a>
+                </div>
+            </li>
+            {{end}}
+        </ul>
+    </div>
+</body>
 </html>

@@ -2,17 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit {{.Title}}</title>
+    <title>Delete Entry</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Editing {{.Title}}</h1>
-        <form action="/save/{{.Title}}" method="post">
-            <textarea name="body" cols="30" rows="10">{{printf "%s" .Body}}</textarea>
-            <input class="save-btn" type="submit" value="Save">
-        </form>
+        <h1>Entry Deleted</h1>
+        <button class="back-btn" onclick="location.href='/'">Back to all entries</button>
     </div>
 </body>
 </html>

@@ -11,21 +11,26 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type Page struct {
-	Title string
-	Body  []byte
+	Title     string
+	Body      []byte
+	Timestamp string
 }
 
-var templates = template.Must(template.New("").Funcs(template.FuncMap{"string": func(b []byte) string { return string(b) }}).ParseFiles("./static/index.html", "./static/create.html", "./static/view.html", "./static/edit.html"))
-var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+var templates = template.Must(template.New("").Funcs(template.FuncMap{"string": func(b []byte) string { return string(b) }}).ParseFiles(
+	"./static/index.html", "./static/create.html", "./static/view.html", "./static/edit.html", "./static/delete.html"))
+var validPath = regexp.MustCompile("^/(edit|save|view|delete)/([a-zA-Z0-9]+)$")
 
 func (p *Page) save() error {
 	var directory string = "./Files/"
 	title := strings.ReplaceAll(p.Title, " ", "")
-	filename := title + ".txt"
+	filename := title + ".md"
 	filePath := directory + filename
+
+	p.Body = []byte(fmt.Sprintf("# %s\n\n%s\n\n*Created on: %s*", p.Title, string(p.Body), p.Timestamp))
 
 	return os.WriteFile(filePath, p.Body, 0600)
 }
@@ -44,15 +49,14 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
 }
 
 func loadPage(title string) (*Page, error) {
-	filename := title + ".txt"
+	filename := title + ".md"
 	fileDir := "./Files/" + filename
 	body, err := os.ReadFile(fileDir)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	return &Page{Title: title, Body: body}, nil
 }
@@ -76,7 +80,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	body := r.FormValue("body")
-	p := &Page{Title: title, Body: []byte(body)}
+	p := &Page{Title: title, Body: []byte(body), Timestamp: time.Now().Format(time.RFC1123)}
 	err = p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -97,6 +101,21 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "edit", p)
 }
 
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
+	title, err := getTitle(w, r)
+	if err != nil {
+		return
+	}
+	filename := title + ".md"
+	fileDir := "./Files/" + filename
+	err = os.Remove(fileDir)
+	if err != nil {
+		http.Error(w, "Unable to delete the entry", http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	directory := "./Files"
 	checkDir(directory)
@@ -108,8 +127,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 	var notes []string
 	for _, file := range files {
-		if !file.IsDir() && strings.HasSuffix(file.Name(), ".txt") {
-			notes = append(notes, strings.TrimSuffix(file.Name(), ".txt"))
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".md") {
+			notes = append(notes, strings.TrimSuffix(file.Name(), ".md"))
 		}
 	}
 
@@ -133,7 +152,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		p := &Page{Title: title, Body: []byte(body)}
+		p := &Page{Title: title, Body: []byte(body), Timestamp: time.Now().Format(time.RFC1123)}
 		err := p.save()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -147,15 +166,16 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fileServer := http.FileServer(http.Dir("./Static"))
+	fileServer := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/edit/", editHandler)
 	http.HandleFunc("/save/", saveHandler)
+	http.HandleFunc("/delete/", deleteHandler)
 	http.HandleFunc("/create", createHandler)
-	
+
 	serverURL := "http://localhost:3000"
 	fmt.Printf("Server is started at: %s\n", serverURL)
 
