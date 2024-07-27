@@ -179,21 +179,16 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Define the layout for parsing the timestamp
 	const layout = "Mon, 02 Jan 2006 15:04:05 MST"
 
-	// Parse timestamps and sort entries in descending order
 	sort.Slice(entries, func(i, j int) bool {
-		// Parse timestamps
 		timestampI, errI := time.Parse(layout, entries[i].Timestamp)
 		timestampJ, errJ := time.Parse(layout, entries[j].Timestamp)
 
-		// Handle parsing errors
 		if errI != nil || errJ != nil {
 			return false
 		}
 
-		// Sort by descending timestamp
 		return timestampI.After(timestampJ)
 	})
 
@@ -228,7 +223,7 @@ func readTimestampFromFile(filepath string) string {
 				return formattedTime
 			} else {
 				fmt.Printf("Error parsing timestamp: %v\n", err)
-				return timestampStr // return as-is if parsing fails
+				return timestampStr
 			}
 		}
 	}
@@ -281,7 +276,7 @@ func main() {
 	serverURL := "http://localhost:3000"
 	fmt.Printf("Server is started at: %s\n", serverURL)
 
-	// openBrowser(serverURL)
+	openBrowser(serverURL)
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
