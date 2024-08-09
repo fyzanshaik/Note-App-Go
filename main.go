@@ -61,7 +61,7 @@ func loadPage(title string) (*Page, error) {
 	if err != nil {
 		return nil, err
 	}
-	title = strings.ReplaceAll(title, "_", " ")
+	title = strings.ReplaceAll(title, " ", "_")
 	body, timeStamp := bodyHandler(body)
 	return &Page{Title: title, Body: body, Timestamp: string(timeStamp)}, nil
 }
@@ -94,7 +94,7 @@ func bodyHandler(dataStream []uint8) ([]uint8, []uint8) {
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title, err := getTitle(w, r)
-	// title = strings.ReplaceAll(title,"_"," ");
+	//  title = strings.ReplaceAll(title,"_"," ");
 	fmt.Println("Title: ", title)
 	if err != nil {
 		return
@@ -124,6 +124,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
 	title, err := getTitle(w, r)
+	fmt.Println("Edit handler path: ", title)
 	if err != nil {
 		return
 	}

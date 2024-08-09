@@ -44,6 +44,13 @@
 
 			updateDateTime();
 			setInterval(updateDateTime, 1000);
+
+			// JavaScript to dynamically adjust the height of the textarea
+			const textarea = document.getElementById('body');
+			textarea.addEventListener('input', function () {
+				this.style.height = 'auto';
+				this.style.height = this.scrollHeight + 'px';
+			});
 		</script>
 	</body>
 </html>

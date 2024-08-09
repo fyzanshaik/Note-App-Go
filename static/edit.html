@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Edit {{.Title}}</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Editing {{.Title}}</h1>
-        <form action="/save/{{.Title}}" method="post">
-            <textarea name="body" cols="30" rows="10">{{printf "%s" .Body}}</textarea>
-            <input class="save-btn" type="submit" value="Save">
-        </form>
-    </div>
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Edit {{.Title}}</title>
+		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
+		<link rel="stylesheet" href="/static/styles.css" />
+	</head>
+	<body>
+		<div class="container">
+			<h1>Editing {{.Title}}</h1>
+			<form action="/save/{{.Title}}" method="post">
+				<textarea id="body" name="body" cols="30" rows="10">{{printf "%s" .Body}}</textarea>
+				<input class="save-btn" type="submit" value="Save" />
+			</form>
+		</div>
+
+		<script>
+			// JavaScript to dynamically adjust the height of the textarea
+			const textarea = document.getElementById('body');
+			textarea.addEventListener('input', function () {
+				this.style.height = 'auto';
+				this.style.height = this.scrollHeight + 'px';
+			});
+
+			// Trigger the height adjustment when the page loads, in case there's pre-filled content
+			window.addEventListener('load', function () {
+				textarea.style.height = textarea.scrollHeight + 'px';
+			});
+		</script>
+	</body>
 </html>
